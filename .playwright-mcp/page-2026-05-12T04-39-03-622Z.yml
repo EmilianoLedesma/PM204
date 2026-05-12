@@ -1,0 +1,16 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - paragraph [ref=e4]: Universidad Politécnica de Querétaro · ISC · Grupo 204
+    - heading "La Aventura del Programador Móvil" [level=1] [ref=e5]:
+      - generic [ref=e6]: La Aventura del
+      - generic [ref=e7]: Programador Móvil
+    - paragraph [ref=e9]:
+      - text: "\"Valiente estudiante, has cruzado los portones de la UPQ."
+      - text: Cuatro cámaras ocultan los secretos de tu cuatrimestre.
+      - text: Solo quien demuestre conocimiento y compromiso podrá avanzar…"
+    - paragraph [ref=e10]:
+      - text: Prof.
+      - strong [ref=e11]: Ivan Isay Guerra López
+      - text: · Programación Móvil · Mayo – Agosto 2026
+    - button "Iniciar la Aventura" [ref=e12] [cursor=pointer]
+  - text: ✦ ✦ ✦ ✦ ✦ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ◆ ✦ ✦ ✦
