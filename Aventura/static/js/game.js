@@ -154,6 +154,43 @@
     setTimeout(function () { floor.style.opacity = reduceMotion ? '0.1' : '0.28'; }, 600);
   }
 
+  // ── Inline SVG stone borders (filter inside same SVG — no CSS cross-ref) ──
+  function addStoneBorders() {
+    var ns = 'http://www.w3.org/2000/svg';
+    document.querySelectorAll('.room-frame').forEach(function (frame, idx) {
+      if (frame.querySelector('.stone-border-svg')) return; // already added
+      var fid = 'sbf' + idx;
+      var svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.classList.add('stone-border-svg');
+      svg.style.cssText = [
+        'position:absolute', 'inset:0', 'width:100%', 'height:100%',
+        'pointer-events:none', 'z-index:4', 'overflow:visible',
+      ].join(';');
+
+      // feTurbulence seed varies per room for unique texture
+      var seed = idx * 7 + 4;
+      svg.innerHTML =
+        '<defs>' +
+          '<filter id="' + fid + '" x="-8%" y="-8%" width="116%" height="116%">' +
+            '<feTurbulence type="fractalNoise" baseFrequency="0.038 0.054"' +
+            ' numOctaves="2" seed="' + seed + '" result="n"/>' +
+            '<feDisplacementMap in="SourceGraphic" in2="n" scale="10"' +
+            ' xChannelSelector="R" yChannelSelector="G"/>' +
+          '</filter>' +
+        '</defs>' +
+        // Outer rough gold border stroke
+        '<rect x="1" y="1" width="99%" height="99%" fill="none"' +
+        ' stroke="#7a6028" stroke-width="1.5" filter="url(#' + fid + ')"/>' +
+        // Second inner pass — darker, slightly different offset for depth
+        '<rect x="3" y="3" width="calc(100% - 6px)" height="calc(100% - 6px)"' +
+        ' fill="none" stroke="#3a1c08" stroke-width="0.8"' +
+        ' filter="url(#' + fid + ')" opacity="0.7"/>';
+
+      frame.appendChild(svg);
+    });
+  }
+
   // ── Room sprites ───────────────────────────────────────────────────────────
   function initRoomSprites() {
     ROOM_SPRITES.forEach(function (s) {
@@ -178,11 +215,11 @@
 
     var c = document.createElement('canvas');
     c.id = 'dungeon-minimap';
-    c.width  = 300;
-    c.height = 48;
+    c.width  = 400;
+    c.height = 64;
     c.setAttribute('role', 'img');
     c.setAttribute('aria-label', 'Mapa de progreso del dungeon');
-    c.style.cssText = 'image-rendering:pixelated;cursor:pointer;display:block;flex:1;max-width:300px;';
+    c.style.cssText = 'image-rendering:pixelated;cursor:pointer;display:block;flex:1;max-width:400px;height:64px;';
 
     c.addEventListener('click', function (e) {
       var rect = c.getBoundingClientRect();
@@ -208,9 +245,9 @@
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, W, H);
 
-    var roomW = 48, roomH = 32;
-    var step  = 75;
-    var ox = 6, oy = 8;
+    var roomW = 60, roomH = 40;
+    var step  = 100;
+    var ox = 5, oy = 12;
 
     for (var r = 1; r <= 4; r++) {
       var rx = ox + (r - 1) * step;
@@ -518,6 +555,7 @@
       if (lock) gsap.to(lock, { opacity: 0, duration: 0.5, ease: 'power2.in',
         onComplete: function () { lock.style.display = 'none'; } });
       setTimeout(function () {
+        addStoneBorders();
         room.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
         if (ScrollTrigger) ScrollTrigger.refresh();
       }, reduceMotion ? 50 : 520);
@@ -649,6 +687,7 @@
           drawMinimap(minimapHighest);
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
+              addStoneBorders();
               initScrollAnimations();
               if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
             });
@@ -661,6 +700,7 @@
       map.classList.remove('hidden');
       initMinimap();
       drawMinimap(minimapHighest);
+      addStoneBorders();
       initScrollAnimations();
     }
   }
