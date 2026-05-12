@@ -14,6 +14,28 @@
 <body>
 
   <!-- ─── Three.js canvas (background layer) ─── -->
+  <!-- SVG filter definitions — stone edge distortion + rune glow -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false"
+       style="position:absolute;overflow:hidden;pointer-events:none">
+    <defs>
+      <!-- Carved stone edge: slight irregular displacement on room frames -->
+      <filter id="stone-edge" x="-5%" y="-5%" width="110%" height="110%"
+              color-interpolation-filters="linearRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.028 0.042"
+                      numOctaves="3" seed="14" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise"
+                           scale="10" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <!-- Rune inner glow for headings -->
+      <filter id="rune-glow" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+        <feFlood flood-color="#c9a84c" flood-opacity="0.6" result="color"/>
+        <feComposite in="color" in2="blur" operator="in" result="glow"/>
+        <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+  </svg>
+
   <canvas id="bg-canvas"></canvas>
   <div class="vignette"></div>
 

@@ -841,10 +841,99 @@ strong { color: var(--ember-hi); font-weight: 700; }
 ::-webkit-scrollbar-thumb:hover { background: var(--ember); }
 
 /* ══════════════════════════════════════════════
+   STONE BLOCK TEXTURE ON PANELS
+   Uses embedded SVG pattern — zero dependencies
+══════════════════════════════════════════════ */
+.room-frame::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%230d1020'/%3E%3Crect x='1' y='1' width='30' height='13' fill='%231e2238' rx='1'/%3E%3Crect x='33' y='1' width='30' height='13' fill='%23192030' rx='1'/%3E%3Crect x='1' y='16' width='14' height='13' fill='%23192030' rx='1'/%3E%3Crect x='17' y='16' width='30' height='13' fill='%231e2238' rx='1'/%3E%3Crect x='49' y='16' width='14' height='13' fill='%231c1e30' rx='1'/%3E%3Crect x='1' y='31' width='30' height='13' fill='%231c2030' rx='1'/%3E%3Crect x='33' y='31' width='30' height='13' fill='%231e2238' rx='1'/%3E%3Crect x='1' y='46' width='14' height='17' fill='%231e2238' rx='1'/%3E%3Crect x='17' y='46' width='30' height='17' fill='%231a1e2e' rx='1'/%3E%3Crect x='49' y='46' width='14' height='17' fill='%231c2030' rx='1'/%3E%3C/svg%3E");
+  background-size: 64px 64px;
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
+
+/* ══════════════════════════════════════════════
+   PIXEL ART ROOM SPRITES
+══════════════════════════════════════════════ */
+.room-sprite {
+  display: block;
+  margin: 0 auto 1rem;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 6px rgba(200,160,60,0.45));
+  transition: filter 0.3s, transform 0.3s;
+}
+.room-frame:hover .room-sprite {
+  filter: drop-shadow(0 0 12px rgba(200,160,60,0.75));
+  transform: scale(1.05);
+}
+
+/* ══════════════════════════════════════════════
+   DUNGEON MINIMAP
+══════════════════════════════════════════════ */
+#dungeon-minimap {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 4px rgba(200,160,60,0.2));
+  transition: opacity 0.3s;
+}
+#dungeon-minimap:hover { opacity: 1; }
+
+/* Minimap canvas replaces map-nodes visually */
+.map-nodes { display: none; }
+.map-path  { display: none; }
+
+/* ══════════════════════════════════════════════
+   DROP CAPS — illuminated capital, always visible
+══════════════════════════════════════════════ */
+.lore-box p::first-letter {
+  font-family: var(--font-deco);
+  font-size: 3.4rem;
+  font-weight: 700;
+  float: left;
+  line-height: 0.75;
+  margin: 0.05em 0.14em 0 0;
+  color: var(--ember-hi);
+  text-shadow:
+    0 0 18px rgba(200,160,60,0.8),
+    0 0 36px rgba(200,160,60,0.4),
+    2px 2px 0 rgba(40,16,4,0.6);
+}
+
+/* ══════════════════════════════════════════════
+   RUNE PULSE — always-on torch glow on titles
+══════════════════════════════════════════════ */
+@keyframes rune-pulse {
+  0%, 100% {
+    text-shadow: 0 0 12px rgba(200,160,60,0.3);
+  }
+  50% {
+    text-shadow:
+      0 0 28px rgba(200,160,60,0.75),
+      0 0 55px rgba(200,160,60,0.25);
+  }
+}
+
+.room-title {
+  animation: rune-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes hero-glow {
+  0%, 100% { text-shadow: 0 0 40px rgba(200,160,60,0.4), 0 0 80px rgba(200,160,60,0.15); }
+  50%       { text-shadow: 0 0 60px rgba(200,160,60,0.7), 0 0 120px rgba(200,160,60,0.3); }
+}
+.title-line-2 { animation: hero-glow 3s ease-in-out infinite; }
+
+/* ══════════════════════════════════════════════
    REDUCED MOTION
 ══════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .arcane-ring, .victory-ring, .seal-glyph,
   .victory-trophy, .badge, .lock-glyph { animation: none; }
+  /* Stone filter is GPU-costly — disable for reduced-motion users */
+  .room-frame { filter: none; }
+  .lore-box p::first-letter { filter: none; }
+  .room-title:hover, .room-frame:hover .room-title { filter: none; }
   html { scroll-behavior: auto; }
 }
