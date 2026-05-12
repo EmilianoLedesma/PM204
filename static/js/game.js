@@ -2,24 +2,26 @@
 (function () {
   'use strict';
 
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // ─── Three.js Ember Particles ──────────────────────────────────────────────
   function initParticles() {
     var canvas = document.getElementById('bg-canvas');
     if (!canvas || typeof THREE === 'undefined') return;
 
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     var scene  = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
     camera.position.z = 6;
 
-    // ── Layer 1: main embers ────────────────────────────────────────────────
-    var N1  = 260;
-    var p1  = new Float32Array(N1 * 3);
-    var v1  = new Float32Array(N1);
-    var d1  = new Float32Array(N1);
+    // Layer 1: main embers
+    var N1 = reduceMotion ? 60 : 260;
+    var p1 = new Float32Array(N1 * 3);
+    var v1 = new Float32Array(N1);
+    var d1 = new Float32Array(N1);
 
     function spawnEmber(i) {
       p1[i * 3]     = (Math.random() - 0.5) * 28;
@@ -38,19 +40,15 @@
     g1.setAttribute('position', new THREE.BufferAttribute(p1, 3));
 
     var m1 = new THREE.PointsMaterial({
-      size: 0.05,
-      sizeAttenuation: true,
+      size: 0.05, sizeAttenuation: true,
       color: new THREE.Color(0xc9a84c),
-      transparent: true,
-      opacity: 0.45,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      transparent: true, opacity: 0.45,
+      depthWrite: false, blending: THREE.AdditiveBlending,
     });
-
     scene.add(new THREE.Points(g1, m1));
 
-    // ── Layer 2: bright sparks ──────────────────────────────────────────────
-    var N2 = 45;
+    // Layer 2: bright sparks
+    var N2 = reduceMotion ? 10 : 45;
     var p2 = new Float32Array(N2 * 3);
     var v2 = new Float32Array(N2);
     var d2 = new Float32Array(N2);
@@ -72,15 +70,11 @@
     g2.setAttribute('position', new THREE.BufferAttribute(p2, 3));
 
     var m2 = new THREE.PointsMaterial({
-      size: 0.13,
-      sizeAttenuation: true,
+      size: 0.13, sizeAttenuation: true,
       color: new THREE.Color(0xf0c060),
-      transparent: true,
-      opacity: 0.65,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      transparent: true, opacity: 0.65,
+      depthWrite: false, blending: THREE.AdditiveBlending,
     });
-
     scene.add(new THREE.Points(g2, m2));
 
     window.addEventListener('resize', function () {
@@ -89,10 +83,24 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
+    // Subtle mouse parallax on the particle field
+    var mouseTargetX = 0, mouseTargetY = 0;
+    if (!reduceMotion) {
+      document.addEventListener('mousemove', function (e) {
+        mouseTargetX = (e.clientX / window.innerWidth  - 0.5) * 0.6;
+        mouseTargetY = (e.clientY / window.innerHeight - 0.5) * 0.3;
+      });
+    }
+
     var t = 0;
     function tick() {
       requestAnimationFrame(tick);
-      t += 0.016;
+      if (!reduceMotion) {
+        t += 0.016;
+        // Lerp camera toward mouse for parallax depth
+        camera.position.x += (mouseTargetX - camera.position.x) * 0.025;
+        camera.position.y += (-mouseTargetY - camera.position.y) * 0.025;
+      }
 
       for (var ii = 0; ii < N1; ii++) {
         p1[ii * 3 + 1] += v1[ii];
@@ -112,6 +120,44 @@
     }
 
     tick();
+  }
+
+  // ─── Hero Entrance ─────────────────────────────────────────────────────────
+  function playHeroEntrance() {
+    if (typeof gsap === 'undefined') return;
+
+    // Set initial hidden state before animating in
+    gsap.set('.hero-eyebrow', { opacity: 0, y: -16 });
+    gsap.set('.title-line-1', { opacity: 0, y: 24 });
+    gsap.set('.title-line-2', { opacity: 0, y: 32, scale: 0.97 });
+    gsap.set('.hero-divider', { scaleX: 0 });
+    gsap.set('.hero-lore',    { opacity: 0, y: 18 });
+    gsap.set('.hero-meta',    { opacity: 0 });
+    gsap.set('#begin-btn',    { opacity: 0, y: 14, scale: 0.96 });
+    gsap.set('.ring-1',       { opacity: 0, scale: 0.55 });
+    gsap.set('.ring-2',       { opacity: 0, scale: 0.55 });
+    gsap.set('.ring-3',       { opacity: 0, scale: 0.55 });
+
+    if (reduceMotion) {
+      gsap.set('.hero-eyebrow, .title-line-1, .title-line-2, .hero-lore, .hero-meta, #begin-btn', { clearProps: 'all' });
+      gsap.set('.hero-divider', { scaleX: 1 });
+      gsap.set('.ring-1', { opacity: 0.25, scale: 1 });
+      gsap.set('.ring-2', { opacity: 0.15, scale: 1 });
+      gsap.set('.ring-3', { opacity: 0.08, scale: 1 });
+      return;
+    }
+
+    var tl = gsap.timeline({ delay: 0.1 });
+    tl.to('.ring-1',     { opacity: 0.25, scale: 1, duration: 2.5, ease: 'power3.out' }, 0)
+      .to('.ring-2',     { opacity: 0.15, scale: 1, duration: 2.5, ease: 'power3.out' }, 0.25)
+      .to('.ring-3',     { opacity: 0.08, scale: 1, duration: 2.5, ease: 'power3.out' }, 0.5)
+      .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.7, ease: 'power4.out' }, 0.2)
+      .to('.title-line-1', { opacity: 1, y: 0, duration: 0.75, ease: 'power4.out' }, 0.4)
+      .to('.title-line-2', { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: 'power4.out' }, 0.55)
+      .to('.hero-divider', { scaleX: 1, duration: 0.7, ease: 'power3.out', transformOrigin: 'center' }, 0.85)
+      .to('.hero-lore',    { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, 0.95)
+      .to('.hero-meta',    { opacity: 1, duration: 0.55, ease: 'power2.out' }, 1.1)
+      .to('#begin-btn',    { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'back.out(1.4)' }, 1.2);
   }
 
   // ─── LocalStorage State ────────────────────────────────────────────────────
@@ -144,13 +190,12 @@
     }
   }
 
-  // ─── Map node click: scroll to room ────────────────────────────────────────
   function wireMapNodes() {
     document.querySelectorAll('.map-node').forEach(function (node) {
       node.addEventListener('click', function () {
         var target = document.getElementById('room-' + node.dataset.room);
         if (target && !target.classList.contains('room-locked')) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
         }
       });
     });
@@ -161,30 +206,83 @@
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
+    var dur     = reduceMotion ? 0.01 : 0.8;
+    var durDense = reduceMotion ? 0.01 : 0.5;
+    var stagger = reduceMotion ? 0 : 0.04;
+
     ScrollTrigger.batch('.room-frame', {
       onEnter: function (batch) {
-        gsap.to(batch, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+        gsap.to(batch, { opacity: 1, y: 0, duration: dur, ease: 'power4.out' });
       },
       start: 'top 93%',
       once: true,
     });
 
-    ScrollTrigger.batch('.rule-item, .oracle-card, .tl-item, .skill-node, .unit-item', {
+    ScrollTrigger.batch('.rule-item, .oracle-card, .skill-node, .unit-item, .decree', {
       onEnter: function (batch) {
-        gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, stagger: 0.055, ease: 'power2.out' });
+        gsap.to(batch, { opacity: 1, y: 0, duration: durDense, stagger: stagger, ease: 'power4.out' });
       },
       start: 'top 90%',
       once: true,
     });
 
-    // Q1 cards only — Q2 is revealed programmatically when Q1 is answered
+    // Timeline items: alternate left/right entrance for cinematic depth
+    document.querySelectorAll('.tl-item').forEach(function (item, idx) {
+      var fromX = idx % 2 === 0 ? -30 : 30;
+      gsap.fromTo(item,
+        { opacity: 0, x: fromX, y: 12 },
+        {
+          opacity: 1, x: 0, y: 0,
+          duration: reduceMotion ? 0.01 : 0.65,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 88%',
+            once: true,
+          },
+        }
+      );
+    });
+
     ScrollTrigger.batch('#q-1-1, #q-2-1, #q-3-1, #q-4-1', {
       onEnter: function (batch) {
-        gsap.to(batch, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+        gsap.to(batch, { opacity: 1, y: 0, duration: durDense, ease: 'power4.out' });
       },
       start: 'top 90%',
       once: true,
     });
+
+    // Parallax: room headers drift slightly slower than the page
+    if (!reduceMotion) {
+      document.querySelectorAll('.room-header').forEach(function (header) {
+        var room = header.closest('.room');
+        if (!room) return;
+        gsap.to(header, {
+          scrollTrigger: {
+            trigger: room,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.8,
+          },
+          y: -36,
+          ease: 'none',
+        });
+      });
+
+      // Lore boxes: subtle counter-parallax (float slightly forward)
+      document.querySelectorAll('.lore-box').forEach(function (box) {
+        gsap.to(box, {
+          scrollTrigger: {
+            trigger: box,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2,
+          },
+          y: 14,
+          ease: 'none',
+        });
+      });
+    }
   }
 
   // ─── Room Unlock ──────────────────────────────────────────────────────────
@@ -195,17 +293,39 @@
 
     room.classList.remove('room-locked');
 
-    if (animate && lock && typeof gsap !== 'undefined') {
-      gsap.to(lock, {
-        opacity: 0,
-        duration: 0.55,
-        ease: 'power2.in',
-        onComplete: function () { lock.style.display = 'none'; },
-      });
+    if (animate && typeof gsap !== 'undefined') {
+      // Gold flash across the viewport
+      if (!reduceMotion) {
+        var flash = document.createElement('div');
+        flash.style.cssText = [
+          'position:fixed', 'inset:0',
+          'background:radial-gradient(ellipse at center,rgba(201,168,76,0.22) 0%,transparent 65%)',
+          'pointer-events:none', 'z-index:500',
+        ].join(';');
+        document.body.appendChild(flash);
+        gsap.to(flash, {
+          opacity: 0, duration: 1.1, ease: 'power3.out',
+          onComplete: function () { flash.parentNode && flash.parentNode.removeChild(flash); },
+        });
+
+        // Room frame entrance scale
+        var frame = room.querySelector('.room-frame');
+        if (frame) {
+          gsap.fromTo(frame, { scale: 0.97 }, { scale: 1, duration: 0.9, ease: 'power4.out' });
+        }
+      }
+
+      if (lock) {
+        gsap.to(lock, {
+          opacity: 0, duration: 0.5, ease: 'power2.in',
+          onComplete: function () { lock.style.display = 'none'; },
+        });
+      }
+
       setTimeout(function () {
-        room.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        room.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
         if (ScrollTrigger) ScrollTrigger.refresh();
-      }, 520);
+      }, reduceMotion ? 50 : 520);
     } else {
       if (lock) lock.style.display = 'none';
     }
@@ -264,7 +384,6 @@
 
     var rs = state['r' + roomNum] || {};
 
-    // Restore
     if (rs.q1) restoreCorrect(q1);
 
     if (rs.q1) {
@@ -288,7 +407,7 @@
       if (typeof gsap !== 'undefined') {
         gsap.fromTo(q2,
           { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: reduceMotion ? 0.01 : 0.55, ease: 'power4.out' }
         );
       }
     });
@@ -323,31 +442,25 @@
     var v = document.getElementById('victory');
     if (!v) return;
     v.classList.remove('hidden');
-    if (typeof gsap !== 'undefined') {
-      gsap.from(v, { opacity: 0, duration: 0.9, ease: 'power2.out' });
+
+    if (typeof gsap !== 'undefined' && !reduceMotion) {
+      gsap.from(v, { opacity: 0, duration: 1, ease: 'power3.out' });
+      gsap.from('.victory-content', { y: 40, opacity: 0, duration: 1.1, ease: 'power4.out', delay: 0.15 });
+      gsap.from('.v-ring-1', { scale: 0.3, opacity: 0, duration: 1.8, ease: 'power3.out', delay: 0.1 });
+      gsap.from('.v-ring-2', { scale: 0.3, opacity: 0, duration: 2.2, ease: 'power3.out', delay: 0.3 });
+      gsap.from('.badge', { scale: 0, opacity: 0, duration: 0.6, ease: 'back.out(1.8)', stagger: 0.12, delay: 0.6 });
     }
+
     setTimeout(function () {
-      v.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      v.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
     }, 700);
   }
 
-  // ─── Hero → Adventure ─────────────────────────────────────────────────────
+  // ─── Hero → Adventure Transition ─────────────────────────────────────────
   function startAdventure(state) {
     var hero      = document.getElementById('hero');
     var adventure = document.getElementById('adventure');
     var map       = document.getElementById('progress-map');
-
-    adventure.classList.remove('hidden');
-    map.classList.remove('hidden');
-
-    if (hero && typeof gsap !== 'undefined') {
-      gsap.to(hero, {
-        opacity: 0, duration: 0.55,
-        onComplete: function () { hero.classList.add('hidden'); },
-      });
-    } else if (hero) {
-      hero.classList.add('hidden');
-    }
 
     var highest = 1;
     for (var r = 2; r <= 4; r++) {
@@ -355,38 +468,60 @@
     }
     updateMap(highest);
     wireMapNodes();
-    initScrollAnimations();
-    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+
+    if (hero && typeof gsap !== 'undefined') {
+      gsap.to(hero, {
+        opacity: 0,
+        duration: reduceMotion ? 0.01 : 0.65,
+        ease: 'power3.in',
+        onComplete: function () {
+          hero.classList.add('hidden');
+          adventure.classList.remove('hidden');
+          map.classList.remove('hidden');
+          // Init scroll animations AFTER adventure is visible and hero is gone
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              initScrollAnimations();
+              if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+            });
+          });
+        },
+      });
+    } else {
+      if (hero) hero.classList.add('hidden');
+      adventure.classList.remove('hidden');
+      map.classList.remove('hidden');
+      initScrollAnimations();
+    }
   }
 
   // ─── Boot ──────────────────────────────────────────────────────────────────
   function boot() {
     initParticles();
 
+    // Clear progress on every load so the quiz starts fresh
+    try { localStorage.removeItem(STATE_KEY); } catch (e) {}
+
     var state = loadState();
 
-    // Setup all room quizzes before unlocking (restores visual state)
     for (var r = 1; r <= 4; r++) setupRoom(r, state);
 
-    // Restore room unlock states silently
     for (var rr = 2; rr <= 4; rr++) {
       if (state['r' + (rr - 1)] && state['r' + (rr - 1)].sealed) {
         unlockRoom(rr, false);
       }
     }
 
-    if (state.started) {
-      startAdventure(state);
-      if (state.victory) showVictory(null);
-    } else {
-      var btn = document.getElementById('begin-btn');
-      if (btn) {
-        btn.addEventListener('click', function () {
-          state.started = true;
-          saveState(state);
-          startAdventure(state);
-        });
-      }
+    // Always show hero on load — progress is silently restored
+    if (typeof gsap !== 'undefined') playHeroEntrance();
+
+    var btn = document.getElementById('begin-btn');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        state.started = true;
+        saveState(state);
+        startAdventure(state);
+      });
     }
   }
 
