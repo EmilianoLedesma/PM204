@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffe Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f0eb;
+            display: flex;
+            justify-content: center;
+            padding: 40px 16px;
+        }
+
+        .menu-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+        }
+
+        .menu-header {
+            background-color: #c0392b;
+            color: white;
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .menu-header h1 {
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .menu-header p {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        /* Secciones CRUD */
+        .seccion {
+            padding: 20px;
+            border-bottom: 1px solid #ece5de;
+        }
+
+        .seccion h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #c0392b;
+            margin-bottom: 12px;
+        }
+
+        .fila-inputs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #c0392b;
+        }
+
+        button {
+            padding: 10px 18px;
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #a93226;
+        }
+
+        /* Lista de productos */
+        #lista {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        #lista .producto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fdf6f0;
+            border: 1px solid #e8ddd4;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        #lista .producto-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        #lista .producto-nombre {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c2c2c;
+        }
+
+        #lista .producto-id {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        #lista .producto-precio {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c0392b;
+        }
+
+        /* Resultado de búsqueda */
+        #resultado {
+            margin-top: 12px;
+        }
+
+        #resultado .producto-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fdf6f0;
+            border: 1px solid #e8ddd4;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        #resultado .producto-nombre {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c2c2c;
+        }
+
+        #resultado .producto-id {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        #resultado .producto-precio {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c0392b;
+        }
+
+        #resultado .no-encontrado {
+            font-size: 0.9rem;
+            color: #999;
+            text-align: center;
+            padding: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-container">
+        <div class="menu-header">
+            <h1>Coffe Code</h1>
+            <p>Gestión de productos de cocina</p>
+        </div>
+
+        <!-- CREATE -->
+        <div class="seccion">
+            <h2>Agregar producto</h2>
+            <div class="fila-inputs">
+                <input type="text" id="nombre" placeholder="Nombre del producto">
+                <input type="number" id="precio" placeholder="Precio" step="0.01">
+                <button onclick="agregar(); listar()">Agregar</button>
+            </div>
+        </div>
+
+        <!-- READ - Listar -->
+        <div class="seccion">
+            <h2>Lista de productos</h2>
+            <button onclick="listar()">Mostrar todos</button>
+            <div id="lista"></div>
+        </div>
+
+        <!-- READ - Buscar -->
+        <div class="seccion">
+            <h2>Buscar por ID</h2>
+            <div class="fila-inputs">
+                <input type="number" id="buscaId" placeholder="ID del producto">
+                <button onclick="buscar()">Buscar</button>
+            </div>
+            <div id="resultado"></div>
+        </div>
+
+        <!-- UPDATE -->
+        <div class="seccion">
+            <h2>Actualizar precio</h2>
+            <div class="fila-inputs">
+                <input type="number" id="updateId" placeholder="ID del producto">
+                <input type="number" id="updatePrecio" placeholder="Nuevo precio" step="0.01">
+                <button onclick="actualizar(); listar()">Actualizar</button>
+            </div>
+        </div>
+
+        <!-- DELETE -->
+        <div class="seccion">
+            <h2>Eliminar producto</h2>
+            <div class="fila-inputs">
+                <input type="number" id="deleteId" placeholder="ID del producto">
+                <button onclick="eliminar(); listar()">Eliminar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="cocina.js"></script>
+    <script>
+        // Sobreescribe listar() para usar tarjetas estilizadas
+        function listar() {
+            let html = "";
+            productoscocina.forEach(p => {
+                html += `
+                    <div class="producto-item">
+                        <div class="producto-info">
+                            <span class="producto-nombre">${p.nombre}</span>
+                            <span class="producto-id">ID: ${p.id}</span>
+                        </div>
+                        <span class="producto-precio">$${p.precio.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            document.getElementById("lista").innerHTML = html;
+        }
+
+        // Sobreescribe buscar() para usar tarjetas estilizadas
+        function buscar() {
+            const id = parseInt(document.getElementById("buscaId").value);
+            const producto = productoscocina.find(p => p.id === id);
+
+            if (producto) {
+                document.getElementById("resultado").innerHTML = `
+                    <div class="producto-item">
+                        <div class="producto-info">
+                            <span class="producto-nombre">${producto.nombre}</span>
+                            <span class="producto-id">ID: ${producto.id}</span>
+                        </div>
+                        <span class="producto-precio">$${producto.precio.toFixed(2)}</span>
+                    </div>
+                `;
+            } else {
+                document.getElementById("resultado").innerHTML =
+                    `<p class="no-encontrado">Producto no encontrado</p>`;
+            }
+        }
+
+        listar();
+    </script>
+
+    <!-- Sección caja -->
+    <div class="menu-container" style="margin-top: 24px;">
+        <div class="menu-header">
+            <h1>Caja</h1>
+            <p>Resumen del pedido</p>
+        </div>
+
+        <div class="seccion">
+            <h2>Ordenar producto</h2>
+            <div class="fila-inputs">
+                <select id="selector-producto" style="flex:1; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:0.9rem; outline:none;"></select>
+                <button onclick="agregarPedido()">Agregar</button>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <h2>Pedidos realizados</h2>
+            <div id="cuerpo-tabla"></div>
+        </div>
+
+        <div class="seccion" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin-bottom: 0;">Subtotal</h2>
+            <span id="subtotal" style="font-size: 1rem; color: #555;"></span>
+        </div>
+
+        <div class="seccion" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin-bottom: 0;">IVA (16%)</h2>
+            <span id="iva" style="font-size: 1rem; color: #555;"></span>
+        </div>
+
+        <div class="seccion" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin-bottom: 0;">Total</h2>
+            <span id="total" style="font-size: 1.2rem; font-weight: 700; color: #c0392b;"></span>
+        </div>
+    </div>
+
+    <script src="caja.js"></script>
+
+</body>
+</html>
