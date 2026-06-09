@@ -1,17 +1,14 @@
 // Zona 1: Importaciones de componentes y archivos
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { Saludo } from './components/Saludo';
-import { Saludo2 } from './components/Saludo2';
+import { Perfil } from './components/perfil';
 
 // Zona 2: Es el main, o mejor dicho, el lugar donde irán los componentes
 export default function App() {
   return (
     <View style={styles.container}>
       <Image source={require('./assets/wave.png')}/>
-      <Text>Hola mundo react native</Text>
-      <Saludo/>
-      <Saludo2></Saludo2>
+      <Perfil nombre="Emiliano" materia="Movil" carrera="Sistemas" cuatri="9"/>
       <StatusBar style="auto" />
     </View>
   );
