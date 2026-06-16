@@ -6,7 +6,7 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 export default function safeAreaScreen() {
   return (
     <View style={styles.container}>
-        <Text>Aqui va la Practica de SafeAreaView</Text>
+        <Text>Aqui va la Practica de SafeAreaScreen</Text>
       <StatusBar style="auto" />
     </View>
   );
