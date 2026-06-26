@@ -71,7 +71,7 @@ export default function Fomrs() {
             placeholder="Semestre"
             value={semestre}
             onChangeText={setSemestre}
-            keyboardType="numeric"
+            
           />
 
           <Text style={styles.subtitulo}>Opciones</Text>
