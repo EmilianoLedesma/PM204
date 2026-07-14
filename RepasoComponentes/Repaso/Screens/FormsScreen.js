@@ -64,7 +64,7 @@ export default function Fomrs() {
             placeholder="Carrera"
             value={carrera}
             onChangeText={setCarrera}
-          />
+          />  
 
           <TextInput
             style={styles.input}
