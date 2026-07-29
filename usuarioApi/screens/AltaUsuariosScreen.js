@@ -22,7 +22,7 @@ export default function AltaUsuariosScreen() {
     
     try{
       setCargando(true);
-      const respuesta = await fetch('http://10.16.72.36:5000/v1/usuarios/',
+      const respuesta = await fetch('http://10.134.29.44:5000/v1/usuarios/',
         {
           method: 'POST',
           headers: {
