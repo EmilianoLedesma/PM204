@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
-  TextInput,
   Pressable,
   Modal,
   StyleSheet,
   Alert,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 
 const API_URL = 'http://10.134.29.44:5000/v1/usuarios';
@@ -87,26 +86,15 @@ export default function DetalleUsuariosScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.card}>
         <Text style={styles.titulo}>Detalle de Usuario</Text>
 
         <Text style={styles.label}>Nombre</Text>
-        <TextInput
-          style={styles.input}
-          value={nombre}
-          placeholder="Nombre del usuario"
-          editable={false}
-        />
+        <Text style={styles.valorTexto}>{nombre || 'Sin nombre'}</Text>
 
         <Text style={styles.label}>Edad</Text>
-        <TextInput
-          style={styles.input}
-          value={edad}
-          placeholder="Edad del usuario"
-          keyboardType="numeric"
-          editable={false}
-        />
+        <Text style={styles.valorTexto}>{edad || 'Sin edad'}</Text>
 
         <View style={styles.bloqueBotones}>
           <Pressable
@@ -229,17 +217,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    marginBottom: 18,
-    backgroundColor: '#F9FAFB',
+  valorTexto: {
     fontSize: 16,
     color: '#111827',
-    opacity: 0.9,
+    marginBottom: 18,
   },
 
   bloqueBotones: {
