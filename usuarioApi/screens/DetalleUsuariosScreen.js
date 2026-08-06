@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-
-const API_URL = 'http://10.134.29.44:5000/v1/usuarios';
+import { API_URL } from '../config/api';
 
 const crearBasicAuth = () => {
   const credenciales = 'admin:1234';

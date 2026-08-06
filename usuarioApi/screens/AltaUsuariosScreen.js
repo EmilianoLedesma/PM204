@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {View,SafeAreaView,Text,TextInput,Pressable,StyleSheet,Alert,Platform,} from 'react-native';
+import { API_URL } from '../config/api';
 
 export default function AltaUsuariosScreen() {
   const [nombre, setNombre] = useState('');
@@ -22,7 +23,7 @@ export default function AltaUsuariosScreen() {
     
     try{
       setCargando(true);
-      const respuesta = await fetch('http://10.134.29.44:5000/v1/usuarios/',
+      const respuesta = await fetch(`${API_URL}/`,
         {
           method: 'POST',
           headers: {
