@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { API_URL } from '../config/api';
 
 export default function ConsultaUsuariosScreen() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function ConsultaUsuariosScreen() {
 
   const obtenerUsuarios = async () => {
     try {
-      const respuesta = await fetch('http://10.134.29.44:5000/v1/usuarios/');
+      const respuesta = await fetch(`${API_URL}/`);
       const datos = await respuesta.json();
       console.log(datos);
 
